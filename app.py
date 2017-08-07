@@ -1,8 +1,11 @@
 #!flask/Scripts/python
 from flask import Flask, jsonify, request, abort, make_response
 import os
-import NLP #import clean_eng, clean_chn, train, predict
-import DB
+from datetime import datetime
+import pickle
+
+with open("model.p", "rb") as f:
+    model = pickle.load(f)
 
 app = Flask(__name__)
 
@@ -16,7 +19,11 @@ routes = [
 def handleHome():
     """ Returns the available routes when a GET request is sent to '/'
     """
-    return jsonify({'routes': routes})
+    R_ID = request.args.get('RID')
+    d = datetime.now()
+    a = model.predict([R_ID, 1, d.hour*3600 + d.minute*60 + d.second, d.month, d.isoweekday()])[0]
+    # model2.predict()
+    return jsonify({'Wait-Time if you ': a})
 
 
 @app.route('/classify', methods=['GET'])
